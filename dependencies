@@ -8,3 +8,4 @@ gunicorn
 python-multipart
 python-dotenv
 tqdm
+openpyxl
