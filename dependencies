@@ -1,0 +1,8 @@
+catboost
+fastapi
+pandas
+numpy
+plotly
+uvicorn
+gunicorn
+python-multipart
