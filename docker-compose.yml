@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  py:
+    build: .
+    ports:
+      - 8004:80
+      
