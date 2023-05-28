@@ -36,7 +36,7 @@ def upload_incidents(table: UploadFile):
         shutil.copyfileobj(table.file, wf)
         table.file.close()
     read_file = pd.read_excel(str('tmp/' + table.filename))
-    read_file.to_csv(r'csv/permanent/incidents/incidents.csv', index = None, header=True)
+    read_file.to_csv(r'csv/incidents.csv', index = None, header=True)
     os.remove('tmp/' + table.filename) 
     return table.filename
 
@@ -47,7 +47,7 @@ def upload_works(table: UploadFile):
         shutil.copyfileobj(table.file, wf)
         table.file.close()
     read_file = pd.read_excel(str('tmp/' + table.filename))
-    read_file.to_csv(r'csv/permanent/works/works.csv', index = None, header=True)
+    read_file.to_csv(r'csv/works.csv', index = None, header=True)
     os.remove('tmp/' + table.filename) 
     return table.filename
 
@@ -69,7 +69,7 @@ def normalize(data: NormalizationData):
         current_data = current_data.loc[current_data['Источник']!='ASUPR']
         current_data = current_data.loc[current_data['Источник']!='EDC']
         normalized_data = pd.concat([normalized_data, current_data], ignore_index=True)
-    normalized_data = normalized_data.head(10)
+    normalized_data = normalized_data.drop_duplicates(subset=["Адрес"], keep=False)
     print(normalized_data.info())
     normalized_data.to_csv('normalized/permanent/normalized_data.csv')
     return 'normalized_data.csv'
