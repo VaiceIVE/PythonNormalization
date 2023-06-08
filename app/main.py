@@ -12,7 +12,7 @@ import plotly.express as px
 from tempfile import NamedTemporaryFile
 import shutil
 from tqdm import tqdm
-from schemas import NormalizationData
+from schemas import NormalizationDataIncidents, NormalizationDataWorks
 
 
 app = FastAPI()
@@ -52,8 +52,8 @@ def upload_works(table: UploadFile):
     return table.filename
 
 
-@app.post('/normalize')
-def normalize(data: NormalizationData):
+@app.post('/normalize/incidents')
+def normalize_incidents(data: NormalizationDataIncidents):
     normalized_data = pd.DataFrame()
     for incidents_name in data.incidents:
         current_data = pd.read_csv("csv/" + incidents_name)
@@ -74,4 +74,28 @@ def normalize(data: NormalizationData):
     normalized_data.to_csv('normalized/permanent/normalized_data.csv')
     return 'normalized_data.csv'
 
+@app.post('/normalize/works')
+def normalize_works(data: NormalizationDataWorks):
 
+    for work in data.works:
+        df = pd.read_csv('csv/' + work)
+        df.shape
+        df.isna().sum()
+        df = df.drop(['PLAN_DATE_START','PLAN_DATE_END','PERIOD','AdmArea'],axis=1)
+        x = df.drop(['WORK_NAME'],axis=1)
+        cat_features = x.columns[np.where(x.dtypes != float)[0]].values.tolist()
+        cat_columns = ['global_id',
+        'FACT_DATE_START',
+        'FACT_DATE_END',
+        'District',
+        'Address',
+        'UNOM']   
+        constant_features = x.columns[x.nunique() <= 1]
+        x = x.drop(constant_features, axis=1)
+        missing_percentage = x.isnull().mean()
+        high_missing_features = missing_percentage[missing_percentage > 0.8].index
+        x = x.drop(high_missing_features, axis=1)
+        x[cat_columns] = x[cat_columns].fillna('unknown')
+        x.to_csv("normalized/permanent/normalized_works.csv")
+    return 'normalized_works.csv'
+    
